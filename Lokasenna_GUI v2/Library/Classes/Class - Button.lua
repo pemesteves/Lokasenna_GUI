@@ -6,7 +6,7 @@
     https://github.com/jalovatt/Lokasenna_GUI/wiki/TextEditor
 
     Creation parameters:
-	name, z, x, y, w, h, caption, func[, ...]
+	name, z, x, y, w, h, caption, mouseup_handler, mouseup_params, mousedown_handler, mousedown_params, func, func_params
 
 ]]--
 
@@ -39,8 +39,11 @@ function GUI.Button:new(name, z, x, y, w, h, caption, func, ...)
 	Button.col_txt = Button.col_txt or "txt"
 	Button.col_fill = Button.col_fill or "elm_frame"
 
-	Button.func = Button.func or func or function () end
-	Button.params = Button.params or {...}
+	Button.mousedown_handler = Button.mousedown_handler or mousedown_handler or function () end
+	Button.mousedown_params = Button.mousedown_params or {...}
+
+	Button.mouseup_handler = Button.mouseup_handler or mouseup_handler or function () end
+	Button.mouseup_params = Button.mouseup_params or {...}
 
 	Button.state = 0
 
@@ -122,6 +125,9 @@ end
 function GUI.Button:onmousedown()
 
 	self.state = 1
+
+	self.mousedown_handler(table.unpack(self.mousedown_params))
+
 	self:redraw()
 
 end
@@ -132,12 +138,8 @@ function GUI.Button:onmouseup()
 
 	self.state = 0
 
-	-- If the mouse was released on the button, run func
-	if GUI.IsInside(self, GUI.mouse.x, GUI.mouse.y) then
-
-		self.func(table.unpack(self.params))
-
-	end
+	self.mouseup_handler(table.unpack(self.mouseup_params))
+	
 	self:redraw()
 
 end
@@ -167,7 +169,7 @@ function GUI.Button:exec(r)
 	if r then
 		self.r_func(table.unpack(self.r_params))
 	else
-		self.func(table.unpack(self.params))
+		self.func(table.unpack(self.func_params))
 	end
 
 end
